@@ -17,6 +17,7 @@ import NotificationSettings from './views/settings/NotificationSettings';
 import CostSettings from './views/settings/CostSettings';
 import UserManagement from './views/settings/UserManagement';
 import LocalizationSettings from './views/settings/LocalizationSettings';
+import SystemUpdateSettings from './views/settings/SystemUpdateSettings';
 import { getCurrentUser, isAuthenticated } from './services/auth';
 import { User } from './types';
 import './App.css';
@@ -76,6 +77,7 @@ const App: React.FC = () => {
             <Route path="costs" element={<CostSettings />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="localization" element={<LocalizationSettings />} />
+            <Route path="system-update" element={<SystemUpdateSettings />} />
           </Route>
           
           {/* Catch-all route */}

@@ -6,7 +6,8 @@ import {
   Users, 
   Bell, 
   Globe,
-  Cpu
+  Cpu,
+  RefreshCw
 } from 'lucide-react';
 
 const SettingsLayout: React.FC = () => {
@@ -23,6 +24,7 @@ const SettingsLayout: React.FC = () => {
     { icon: Cpu, label: 'AI Assistant', path: '/settings/ai' },
     { icon: Bell, label: 'Notifications', path: '/settings/notifications' },
     { icon: Globe, label: 'Localization', path: '/settings/localization' },
+    { icon: RefreshCw, label: 'System Update', path: '/settings/system-update' },
   ];
   
   return (
