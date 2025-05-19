@@ -33,7 +33,7 @@ import {
   TableRow
 } from "../../components/ui/table";
 import {
-W  Edit,
+  Edit,
   Trash2,
   UserPlus,
   Mail,
