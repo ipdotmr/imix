@@ -36,6 +36,21 @@ const ConditionNode = ({ data }: { data: any }) => {
       </CardHeader>
       <CardContent className="p-2">
         <div className="text-xs">{data.description}</div>
+        
+        {/* Display variant field options if available */}
+        {data.config?.variantFieldOptions && (
+          <div className="mt-2">
+            <div className="text-xs font-medium mb-1">Available Variant Fields:</div>
+            <div className="text-xs space-y-1">
+              {data.config.variantFieldOptions.map((option: any) => (
+                <div key={option.value} className="flex items-center">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                  <span>{option.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -90,6 +105,13 @@ const FlowDesigner: React.FC = () => {
   };
   
   const addConditionNode = () => {
+    const variantFieldOptions = [
+      { value: 'variant_customerType', label: 'Customer Type (Customers)' },
+      { value: 'variant_accountManager', label: 'Account Manager (Customers)' },
+      { value: 'variant_leadSource', label: 'Lead Source (Leads)' },
+      { value: 'variant_leadScore', label: 'Lead Score (Leads)' }
+    ];
+    
     const newNode: Node = {
       id: `condition-${Date.now()}`,
       type: 'condition',
@@ -101,7 +123,8 @@ const FlowDesigner: React.FC = () => {
           type: 'yes_no',
           field: 'message',
           operator: 'contains',
-          value: 'order'
+          value: 'order',
+          variantFieldOptions: variantFieldOptions // Add variant field options
         }
       }
     };

@@ -15,6 +15,8 @@ class Contact(Document):
     profile_name: Optional[str] = None
     labels: List[Label] = []
     custom_fields: Dict[str, str] = {}
+    variant_field_values: Dict[str, str] = {}  # Added for storing variant field values
+    group_ids: List[str] = []  # Added for storing group memberships
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     

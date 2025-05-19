@@ -9,6 +9,7 @@ export interface User {
   active: boolean;
   createdAt: string;
   lastLogin?: string;
+  languagePreference?: Language;
 }
 
 export interface Tenant {
@@ -20,6 +21,16 @@ export interface Tenant {
   updatedAt: string;
   active: boolean;
   usageLimits: UsageLimits;
+  webhookUri?: string;        // New field
+  webhookToken?: string;      // New field
+  defaultLanguage?: Language; // New field
+  organization?: string;      // New field
+  address?: string;           // New field
+  phone?: string;             // New field
+  mobile?: string;            // New field
+  email?: string;             // New field
+  privateNotes?: string;      // New field
+  logoUrl?: string;           // New field
 }
 
 export interface WhatsAppBusinessAccount {
@@ -28,6 +39,9 @@ export interface WhatsAppBusinessAccount {
   businessName: string;
   verified: boolean;
   apiKey?: string;
+  businessAccountId: string;  // New field
+  metaAccessToken: string;    // New field
+  appId: string;              // New field
 }
 
 export interface UsageLimits {
@@ -35,6 +49,8 @@ export interface UsageLimits {
   maxMediaPerDay: number;
   maxTemplates: number;
   maxAgents: number;
+  maxContacts: number; // New field
+  maxContactGroups: number; // New field
 }
 
 export interface Message {
@@ -69,6 +85,10 @@ export interface Contact {
   profileName?: string;
   labels: Label[];
   customFields: Record<string, string>;
+  variantFieldValues: Record<string, string>; // Added for variant fields
+  groupIds: string[]; // Added for group memberships
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Label {
@@ -235,6 +255,38 @@ export type Permission =
   | 'assign_contacts'
   | 'view_analytics';
 
+export interface ContactVariantField {
+  name: string;
+  description?: string;
+  isVisibleToAgent: boolean;
+  isAvailableInFlows: boolean;
+}
+
+export type ContactGroupPermission = 
+  | 'view'
+  | 'edit'
+  | 'delete'
+  | 'message'
+  | 'assign';
+
+export interface RolePermission {
+  role: Role;
+  permissions: ContactGroupPermission[];
+}
+
+export interface ContactGroup {
+  id: string;
+  tenantId: string;
+  name: string;
+  description?: string;
+  contacts: string[];
+  parentGroupId?: string;
+  rolePermissions: RolePermission[];
+  variantFields: Record<string, ContactVariantField>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserPermissions {
   permissions: Permission[];
 }
@@ -250,6 +302,7 @@ export interface User {
   active: boolean;
   createdAt: string;
   lastLogin?: string;
+  languagePreference?: Language;
 }
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -278,6 +331,8 @@ export interface Task {
   relatedContactId?: string;
   relatedMessageId?: string;
 }
+
+export type Language = 'en' | 'fr' | 'ar';
 
 export interface EmailSettings {
   smtpServer: string;

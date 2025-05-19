@@ -35,7 +35,7 @@ const AgentWorkspace: React.FC = () => {
   const [showFormSelector, setShowFormSelector] = useState(false);
   
   useEffect(() => {
-    const mockContacts = [
+    const mockContacts: Contact[] = [
       { 
         id: '1', 
         tenantId: 'tenant1',
@@ -44,7 +44,15 @@ const AgentWorkspace: React.FC = () => {
         name: 'John Doe', 
         profileName: 'John', 
         labels: [{ name: 'Customer', color: '#4CAF50' }],
-        customFields: {}
+        customFields: {},
+        variantFieldValues: {
+          'customerType': 'VIP',
+          'accountManager': 'Sarah Johnson',
+          'lastPurchase': '2023-05-15'
+        },
+        groupIds: ['1'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       },
       { 
         id: '2', 
@@ -54,7 +62,15 @@ const AgentWorkspace: React.FC = () => {
         name: 'Jane Smith', 
         profileName: 'Jane', 
         labels: [{ name: 'Lead', color: '#2196F3' }],
-        customFields: {}
+        customFields: {},
+        variantFieldValues: {
+          'leadSource': 'Website',
+          'leadScore': '8',
+          'interestedIn': 'Premium Plan'
+        },
+        groupIds: ['2'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       },
     ];
     
@@ -348,6 +364,20 @@ const AgentWorkspace: React.FC = () => {
               <div>
                 <div className="font-medium">{selectedContact.name}</div>
                 <div className="text-sm text-gray-500">{selectedContact.phoneNumber}</div>
+                
+                {/* Display variant fields */}
+                {selectedContact.variantFieldValues && Object.keys(selectedContact.variantFieldValues).length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {Object.entries(selectedContact.variantFieldValues).map(([key, value]) => (
+                      <span 
+                        key={key}
+                        className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800"
+                      >
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {value}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon">

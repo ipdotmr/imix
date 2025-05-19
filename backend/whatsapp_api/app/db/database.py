@@ -9,6 +9,7 @@ from app.models.form import Form
 from app.models.branding import BrandingSettings
 from app.models.ai_config import AIConfig
 from app.models.task import Task
+from app.models.contact_group import ContactGroup
 
 async def init_db(app_settings):
     client = motor.motor_asyncio.AsyncIOMotorClient(
@@ -26,6 +27,7 @@ async def init_db(app_settings):
             Form,
             BrandingSettings,
             AIConfig,
-            Task
+            Task,
+            ContactGroup
         ]
     )

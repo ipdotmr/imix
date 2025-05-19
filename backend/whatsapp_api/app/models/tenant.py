@@ -4,6 +4,11 @@ from enum import Enum
 from beanie import Document, Link
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
+class Language(str, Enum):
+    ENGLISH = "en"
+    FRENCH = "fr"
+    ARABIC = "ar"
+
 class WhatsAppBusinessAccount(BaseModel):
     phone_number_id: str
     display_phone_number: str
@@ -16,6 +21,8 @@ class UsageLimits(BaseModel):
     max_media_per_day: int = 100
     max_templates: int = 10
     max_agents: int = 5
+    max_contacts: int = 1000  # New field for contact limits
+    max_contact_groups: int = 50  # New field for contact group limits
 
 class Currency(str, Enum):
     MRU = "mru"
@@ -72,6 +79,7 @@ class Tenant(Document):
     usage_limits: UsageLimits = Field(default_factory=UsageLimits)
     cost_settings: CostSettings = Field(default_factory=CostSettings)
     email_settings: Optional[EmailSettings] = None
+    default_language: Language = Language.ENGLISH
     
     class Settings:
         name = "tenants"

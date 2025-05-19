@@ -28,6 +28,7 @@ const Sidebar: React.FC = () => {
     { icon: Layers, label: 'Flow Designer', path: '/flows' },
     { icon: FileText, label: 'Forms', path: '/forms' },
     { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
+    { icon: Users, label: 'Phone Book', path: '/contacts/phonebook' },
     { icon: BarChart2, label: 'Analytics', path: '/analytics' },
     { icon: Settings, label: 'Settings', path: '/settings/branding' },
   ];

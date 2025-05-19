@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './providers/ThemeProvider';
+import { LanguageProvider } from './providers/LanguageProvider';
 import DashboardLayout from './components/layout/DashboardLayout';
 import SettingsLayout from './components/layout/SettingsLayout';
 import Login from './views/auth/Login';
@@ -9,11 +10,13 @@ import TenantManagement from './views/dashboard/TenantManagement';
 import AgentWorkspace from './views/agent/AgentWorkspace';
 import FlowDesigner from './views/flows/FlowDesigner';
 import TaskManagement from './views/tasks/TaskManagement';
+import PhoneBook from './views/contacts/PhoneBook';
 import BrandingSettings from './views/settings/BrandingSettings';
 import AISettings from './views/settings/AISettings';
 import NotificationSettings from './views/settings/NotificationSettings';
 import CostSettings from './views/settings/CostSettings';
 import UserManagement from './views/settings/UserManagement';
+import LocalizationSettings from './views/settings/LocalizationSettings';
 import { getCurrentUser, isAuthenticated } from './services/auth';
 import { User } from './types';
 import './App.css';
@@ -52,8 +55,9 @@ const App: React.FC = () => {
   
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
+      <LanguageProvider>
+        <BrowserRouter>
+          <Routes>
           <Route path="/login" element={user ? <Navigate to="/" /> : <Login onLogin={setUser} />} />
           
           <Route element={user ? <DashboardLayout /> : <Navigate to="/login" />}>
@@ -62,6 +66,7 @@ const App: React.FC = () => {
             <Route path="/agent" element={<AgentWorkspace />} />
             <Route path="/flows" element={<FlowDesigner />} />
             <Route path="/tasks" element={<TaskManagement />} />
+            <Route path="/contacts/phonebook" element={<PhoneBook />} />
           </Route>
           
           <Route path="/settings" element={user ? <SettingsLayout /> : <Navigate to="/login" />}>
@@ -70,13 +75,14 @@ const App: React.FC = () => {
             <Route path="notifications" element={<NotificationSettings />} />
             <Route path="costs" element={<CostSettings />} />
             <Route path="users" element={<UserManagement />} />
-            <Route path="localization" element={<div>Localization Settings</div>} />
+            <Route path="localization" element={<LocalizationSettings />} />
           </Route>
           
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
+      </LanguageProvider>
     </ThemeProvider>
   );
 };
