@@ -4,6 +4,8 @@ from enum import Enum
 from beanie import Document, Link
 from pydantic import BaseModel, Field, EmailStr
 
+from app.models.tenant import Language
+
 class Role(str, Enum):
     ADMIN = "admin"
     MANAGER = "manager"
@@ -42,6 +44,7 @@ class User(Document):
     active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    language_preference: Optional[Language] = None  # If None, use tenant's default language
     
     class Settings:
         name = "users"

@@ -1,51 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from "../../components/ui/dialog";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "../../components/ui/select";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "../../components/ui/table";
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  UserPlus, 
-  Mail, 
-  Shield, 
-  CheckCircle, 
-  XCircle 
+import {
+W  Edit,
+  Trash2,
+  UserPlus,
+  Mail,
+  Shield,
+  CheckCircle,
+  XCircle,
+  Globe
 } from 'lucide-react';
-import { User, Role, Permission } from '../../types';
-import api from '../../services/api';
+import { User, Role, Language } from '../../types';
+import { useLanguage } from '../../providers/LanguageProvider';
+import { Badge } from "../../components/ui/badge";
 
 const UserManagement: React.FC = () => {
+  const { t, language } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,9 +59,10 @@ const UserManagement: React.FC = () => {
     role: 'agent' as Role,
     password: '',
     confirmPassword: '',
-    active: true
+    active: true,
+    languagePreference: language as Language
   });
-  
+
   useEffect(() => {
     const mockUsers: User[] = [
       {
@@ -113,13 +116,13 @@ const UserManagement: React.FC = () => {
         createdAt: new Date().toISOString()
       }
     ];
-    
+
     setUsers(mockUsers);
     setLoading(false);
-    
-    // 
+
+    //
   }, []);
-  
+
   const handleAddUser = () => {
     setEditingUser(null);
     setFormData({
@@ -129,11 +132,12 @@ const UserManagement: React.FC = () => {
       role: 'agent',
       password: '',
       confirmPassword: '',
-      active: true
+      active: true,
+      languagePreference: language as Language
     });
     setDialogOpen(true);
   };
-  
+
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setFormData({
@@ -143,31 +147,32 @@ const UserManagement: React.FC = () => {
       role: user.role,
       password: '',
       confirmPassword: '',
-      active: user.active
+      active: user.active,
+      languagePreference: user.languagePreference || (language as Language)
     });
     setDialogOpen(true);
   };
-  
+
   const handleDeleteUser = (userId: string) => {
     setUsers(users.filter(user => user.id !== userId));
-    
+
   };
-  
+
   const handleToggleActive = (userId: string, active: boolean) => {
-    setUsers(users.map(user => 
+    setUsers(users.map(user =>
       user.id === userId ? { ...user, active } : user
     ));
-    
+
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    
+
     if (editingUser) {
       const updatedUser = {
         ...editingUser,
@@ -175,10 +180,11 @@ const UserManagement: React.FC = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         role: formData.role,
-        active: formData.active
+        active: formData.active,
+        languagePreference: formData.languagePreference
       };
-      
-      setUsers(users.map(user => 
+
+      setUsers(users.map(user =>
         user.id === editingUser.id ? updatedUser : user
       ));
     } else {
@@ -190,16 +196,17 @@ const UserManagement: React.FC = () => {
         tenantId: 'tenant1', // Current tenant ID
         role: formData.role,
         active: formData.active,
+        languagePreference: formData.languagePreference,
         createdAt: new Date().toISOString()
       };
-      
+
       setUsers([...users, newUser]);
     }
-    
+
     setDialogOpen(false);
-    
+
   };
-  
+
   const getRoleBadgeColor = (role: Role) => {
     switch (role) {
       case 'admin':
@@ -220,25 +227,40 @@ const UserManagement: React.FC = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
-  
+
   if (loading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
-  
+
+  const getLanguageBadge = (language?: Language) => {
+    if (!language) return null;
+
+    switch (language) {
+      case 'en':
+        return <Badge className="bg-blue-100 text-blue-800">English</Badge>;
+      case 'fr':
+        return <Badge className="bg-blue-100 text-blue-800">Français</Badge>;
+      case 'ar':
+        return <Badge className="bg-green-100 text-green-800">العربية</Badge>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">User Management</h1>
+        <h1 className="text-3xl font-bold">{t('settings.users.title')}</h1>
         <Button onClick={handleAddUser}>
           <UserPlus size={16} className="mr-2" />
-          Add User
+          {t('settings.users.addUser')}
         </Button>
       </div>
-      
+
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>Manage users and their access permissions</CardDescription>
+          <CardTitle>{t('settings.users.usersTitle')}</CardTitle>
+          <CardDescription>{t('settings.users.usersDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
@@ -249,11 +271,12 @@ const UserManagement: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t('settings.users.name')}</TableHead>
+                  <TableHead>{t('settings.users.email')}</TableHead>
+                  <TableHead>{t('settings.users.role')}</TableHead>
+                  <TableHead>{t('settings.users.language')}</TableHead>
+                  <TableHead>{t('settings.users.status')}</TableHead>
+                  <TableHead>{t('settings.users.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -277,6 +300,12 @@ const UserManagement: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center">
+                        <Globe size={14} className="mr-2 text-gray-500" />
+                        {getLanguageBadge(user.languagePreference)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       {user.active ? (
                         <span className="flex items-center text-green-600">
                           <CheckCircle size={14} className="mr-1" />
@@ -294,30 +323,30 @@ const UserManagement: React.FC = () => {
                         <Button variant="outline" size="sm" onClick={() => handleEditUser(user)}>
                           <Edit size={14} />
                         </Button>
-                        
+
                         {user.active ? (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="text-gray-600"
                             onClick={() => handleToggleActive(user.id, false)}
                           >
                             <XCircle size={14} />
                           </Button>
                         ) : (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="text-green-600"
                             onClick={() => handleToggleActive(user.id, true)}
                           >
                             <CheckCircle size={14} />
                           </Button>
                         )}
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="text-red-600"
                           onClick={() => handleDeleteUser(user.id)}
                         >
@@ -332,64 +361,64 @@ const UserManagement: React.FC = () => {
           )}
         </CardContent>
       </Card>
-      
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingUser ? 'Edit User' : 'Add User'}</DialogTitle>
+            <DialogTitle>{editingUser ? t('settings.users.editUser') : t('settings.users.addUser')}</DialogTitle>
             <DialogDescription>
-              {editingUser 
-                ? 'Update user details and permissions.' 
-                : 'Fill in the details to create a new user.'}
+              {editingUser
+                ? t('settings.users.editUserDescription')
+                : t('settings.users.addUserDescription')}
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t('settings.users.firstName')}</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    placeholder="John"
+                    placeholder={t('settings.users.firstNamePlaceholder')}
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t('settings.users.lastName')}</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    placeholder="Doe"
+                    placeholder={t('settings.users.lastNamePlaceholder')}
                     required
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('settings.users.email')}</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="john.doe@example.com"
+                  placeholder={t('settings.users.emailPlaceholder')}
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select 
-                  value={formData.role} 
+                <Label htmlFor="role">{t('settings.users.role')}</Label>
+                <Select
+                  value={formData.role}
                   onValueChange={(value) => setFormData({ ...formData, role: value as Role })}
                 >
                   <SelectTrigger id="role">
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={t('settings.users.selectRole')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>
@@ -402,7 +431,7 @@ const UserManagement: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {!editingUser && (
                 <>
                   <div className="space-y-2">
@@ -416,7 +445,7 @@ const UserManagement: React.FC = () => {
                       required={!editingUser}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input
@@ -430,7 +459,39 @@ const UserManagement: React.FC = () => {
                   </div>
                 </>
               )}
-              
+
+              <div className="space-y-2">
+                <Label htmlFor="language">{t('settings.users.language')}</Label>
+                <Select
+                  value={formData.languagePreference}
+                  onValueChange={(value) => setFormData({ ...formData, languagePreference: value as Language })}
+                >
+                  <SelectTrigger id="language">
+                    <SelectValue placeholder={t('settings.users.selectLanguage')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">
+                      <div className="flex items-center">
+                        <Globe size={16} className="mr-2" />
+                        English
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="fr">
+                      <div className="flex items-center">
+                        <Globe size={16} className="mr-2" />
+                        Français
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="ar">
+                      <div className="flex items-center">
+                        <Globe size={16} className="mr-2" />
+                        العربية
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="flex items-center space-x-2 pt-2">
                 <input
                   type="checkbox"
@@ -439,16 +500,16 @@ const UserManagement: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
-                <Label htmlFor="active">Active</Label>
+                <Label htmlFor="active">{t('settings.users.active')}</Label>
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit">
-                {editingUser ? 'Update User' : 'Create User'}
+                {editingUser ? t('common.update') : t('common.create')}
               </Button>
             </DialogFooter>
           </form>
