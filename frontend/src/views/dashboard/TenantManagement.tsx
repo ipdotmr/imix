@@ -27,7 +27,7 @@ import {
 } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Plus, Edit, Trash2, Globe, Webhook, Lock } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, Webhook, Lock, Eye } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { useLanguage } from "../../providers/LanguageProvider";
 import { Tenant, WhatsAppBusinessAccount, Language } from "../../types";
@@ -37,6 +37,8 @@ const TenantManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingTenant, setViewingTenant] = useState<Tenant | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     businessId: '',
@@ -283,6 +285,12 @@ const TenantManagement: React.FC = () => {
     setActiveTab('accounts');
   };
   
+  const handleViewTenant = (tenant: Tenant) => {
+    setViewingTenant(tenant);
+    setWhatsappAccounts(tenant.whatsappAccounts || []);
+    setViewDialogOpen(true);
+  };
+
   const handleDeleteTenant = (id: string) => {
     setTenants(tenants.filter(tenant => tenant.id !== id));
     
@@ -332,6 +340,9 @@ const TenantManagement: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleViewTenant(tenant)}>
+                        <Eye size={16} />
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => handleEditTenant(tenant)}>
                         <Edit size={16} />
                       </Button>
@@ -699,6 +710,71 @@ const TenantManagement: React.FC = () => {
               </div>
             </TabsContent>
           </Tabs>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View Tenant Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{viewingTenant?.name}</DialogTitle>
+            <DialogDescription>
+              {t('tenants.viewTenantDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewingTenant && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium mb-2">{t('tenants.basicInfo')}</h3>
+                  <div className="text-sm space-y-2">
+                    <div><span className="font-medium">{t('tenants.name')}:</span> {viewingTenant.name}</div>
+                    <div><span className="font-medium">{t('tenants.businessId')}:</span> {viewingTenant.businessId}</div>
+                    <div><span className="font-medium">{t('tenants.organization')}:</span> {viewingTenant.organization || '-'}</div>
+                    <div><span className="font-medium">{t('tenants.email')}:</span> {viewingTenant.email || '-'}</div>
+                    <div><span className="font-medium">{t('tenants.phone')}:</span> {viewingTenant.phone || '-'}</div>
+                    <div><span className="font-medium">{t('tenants.mobile')}:</span> {viewingTenant.mobile || '-'}</div>
+                    <div><span className="font-medium">{t('common.status')}:</span> 
+                      <span className={viewingTenant.active ? 'text-green-600' : 'text-red-600'}>
+                        {viewingTenant.active ? t('common.active') : t('common.inactive')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium mb-2">{t('tenants.whatsappAccounts')}</h3>
+                  {whatsappAccounts.length === 0 ? (
+                    <div className="text-sm text-gray-500">{t('tenants.noAccounts')}</div>
+                  ) : (
+                    <div className="text-sm space-y-4">
+                      {whatsappAccounts.map((account, index) => (
+                        <div key={index} className="p-3 border rounded-md">
+                          <div><span className="font-medium">{t('tenants.businessName')}:</span> {account.businessName}</div>
+                          <div><span className="font-medium">{t('tenants.phoneNumber')}:</span> {account.displayPhoneNumber}</div>
+                          <div><span className="font-medium">{t('tenants.status')}:</span> 
+                            <span className={account.verified ? 'text-green-600' : 'text-yellow-600'}>
+                              {account.verified ? t('tenants.verified') : t('tenants.pending')}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {viewingTenant.privateNotes && (
+                <div>
+                  <h3 className="font-medium mb-2">{t('tenants.privateNotes')}</h3>
+                  <div className="text-sm p-3 border rounded-md whitespace-pre-wrap">
+                    {viewingTenant.privateNotes}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

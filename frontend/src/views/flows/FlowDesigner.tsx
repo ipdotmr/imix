@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   Background,
@@ -13,6 +13,7 @@ import 'reactflow/dist/style.css';
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Save, Play, Plus } from "lucide-react";
 
 const TriggerNode = ({ data }: { data: any }) => {
@@ -80,6 +81,24 @@ const FlowDesigner: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowName, setFlowName] = useState('New Flow');
   const [flowDescription, setFlowDescription] = useState('');
+  const [savedFlows, setSavedFlows] = useState<any[]>([]);
+  const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const loadSavedFlows = () => {
+      try {
+        const savedFlowsData = localStorage.getItem('savedFlows');
+        if (savedFlowsData) {
+          const flows = JSON.parse(savedFlowsData);
+          setSavedFlows(flows);
+        }
+      } catch (error) {
+        console.error('Failed to load saved flows', error);
+      }
+    };
+    
+    loadSavedFlows();
+  }, []);
   
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -152,13 +171,27 @@ const FlowDesigner: React.FC = () => {
   
   const saveFlow = async () => {
     try {
-      console.log('Flow data:', {
+      const flowData = {
+        id: selectedFlow || `flow-${Date.now()}`,
         name: flowName,
         description: flowDescription,
         nodes,
-        edges
-      });
+        edges,
+        createdAt: new Date().toISOString(),
+      };
       
+      const existingFlows = [...savedFlows];
+      const flowIndex = existingFlows.findIndex(flow => flow.id === flowData.id);
+      
+      if (flowIndex >= 0) {
+        existingFlows[flowIndex] = flowData;
+      } else {
+        existingFlows.push(flowData);
+      }
+      
+      setSavedFlows(existingFlows);
+      setSelectedFlow(flowData.id);
+      localStorage.setItem('savedFlows', JSON.stringify(existingFlows));
       
       alert('Flow saved successfully!');
     } catch (error) {
@@ -167,11 +200,27 @@ const FlowDesigner: React.FC = () => {
     }
   };
   
+  const loadFlow = (flowId: string) => {
+    try {
+      const flow = savedFlows.find(flow => flow.id === flowId);
+      if (flow) {
+        setFlowName(flow.name);
+        setFlowDescription(flow.description);
+        setNodes(flow.nodes);
+        setEdges(flow.edges);
+        setSelectedFlow(flowId);
+      }
+    } catch (error) {
+      console.error('Failed to load flow', error);
+      alert('Failed to load flow');
+    }
+  };
+  
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-4">
-          <div>
+          <div className="w-2/3">
             <Input 
               value={flowName}
               onChange={(e) => setFlowName(e.target.value)}
@@ -185,6 +234,18 @@ const FlowDesigner: React.FC = () => {
             />
           </div>
           <div className="flex gap-2">
+            <Select value={selectedFlow || ""} onValueChange={loadFlow}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Load saved flow" />
+              </SelectTrigger>
+              <SelectContent>
+                {savedFlows.map(flow => (
+                  <SelectItem key={flow.id} value={flow.id}>
+                    {flow.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button onClick={saveFlow}>
               <Save size={20} className="mr-2" />
               Save
