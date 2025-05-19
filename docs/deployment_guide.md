@@ -64,7 +64,7 @@ cp -r /path/to/frontend/dist/* /www/wwwroot/imix/imix/frontend/dist/
 ```bash
 cd /www/wwwroot/imix/imix/backend/whatsapp_api
 poetry install
-poetry add python-jose python-multipart fastapi-users[beanie] passlib
+poetry add python-jose python-multipart fastapi-users[beanie] passlib pydantic-settings
 ```
 
 ### 3.2 Create Environment File
