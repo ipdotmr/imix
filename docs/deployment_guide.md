@@ -173,10 +173,10 @@ EOF
 5. Select PHP version (if needed)
 6. Click "Submit"
 
-### 5.2 API Website (api.imix.ip.mr)
+### 5.2 API Website (apimix.ip.mr)
 
 1. Go to "Website" → "Add site"
-2. Enter domain: `api.imix.ip.mr`
+2. Enter domain: `apimix.ip.mr`
 3. Set document root to any directory (will be overridden by proxy)
 4. After creating the site, go to "Site Settings" → "Proxy"
 5. Add a new proxy rule:
@@ -191,7 +191,7 @@ EOF
 1. Log in to your Cloudflare account
 2. Add A records for both domains pointing to your server's IP address:
    - `imix.ip.mr` → Your server IP
-   - `api.imix.ip.mr` → Your server IP
+   - `apimix.ip.mr` → Your server IP
 
 ### 6.2 Configure Cloudflare SSL
 
@@ -224,7 +224,7 @@ cat /var/log/imix-backend.out.log
 
 ```bash
 # Test the API endpoint
-curl -L https://api.imix.ip.mr/healthz
+curl -L https://apimix.ip.mr/healthz
 # Should return {"status":"ok"}
 ```
 
