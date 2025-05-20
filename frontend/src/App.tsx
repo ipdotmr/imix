@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { LanguageProvider } from './providers/LanguageProvider';
+import { TranslationFix } from './providers/TranslationFix';
 import DashboardLayout from './components/layout/DashboardLayout';
 import SettingsLayout from './components/layout/SettingsLayout';
 import Login from './views/auth/Login';
@@ -18,6 +19,7 @@ import CostSettings from './views/settings/CostSettings';
 import UserManagement from './views/settings/UserManagement';
 import LocalizationSettings from './views/settings/LocalizationSettings';
 import SystemUpdateSettings from './views/settings/SystemUpdateSettings';
+import LabelManagement from './views/settings/LabelManagement';
 import { getCurrentUser, isAuthenticated } from './services/auth';
 import { User } from './types';
 import './App.css';
@@ -57,33 +59,36 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <BrowserRouter>
-          <Routes>
-          <Route path="/login" element={user ? <Navigate to="/" /> : <Login onLogin={setUser} />} />
-          
-          <Route element={user ? <DashboardLayout /> : <Navigate to="/login" />}>
-            <Route path="/" element={<DashboardHome />} />
-            <Route path="/tenants" element={<TenantManagement />} />
-            <Route path="/agent" element={<AgentWorkspace />} />
-            <Route path="/flows" element={<FlowDesigner />} />
-            <Route path="/tasks" element={<TaskManagement />} />
-            <Route path="/contacts/phonebook" element={<PhoneBook />} />
-          </Route>
-          
-          <Route path="/settings" element={user ? <SettingsLayout /> : <Navigate to="/login" />}>
-            <Route path="branding" element={<BrandingSettings />} />
-            <Route path="ai" element={<AISettings />} />
-            <Route path="notifications" element={<NotificationSettings />} />
-            <Route path="costs" element={<CostSettings />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="localization" element={<LocalizationSettings />} />
-            <Route path="system-update" element={<SystemUpdateSettings />} />
-          </Route>
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </BrowserRouter>
+        <TranslationFix>
+          <BrowserRouter>
+            <Routes>
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login onLogin={setUser} />} />
+            
+            <Route element={user ? <DashboardLayout /> : <Navigate to="/login" />}>
+              <Route path="/" element={<DashboardHome />} />
+              <Route path="/tenants" element={<TenantManagement />} />
+              <Route path="/agent" element={<AgentWorkspace />} />
+              <Route path="/flows" element={<FlowDesigner />} />
+              <Route path="/tasks" element={<TaskManagement />} />
+              <Route path="/contacts/phonebook" element={<PhoneBook />} />
+              <Route path="/labels" element={<LabelManagement />} />
+            </Route>
+            
+            <Route path="/settings" element={user ? <SettingsLayout /> : <Navigate to="/login" />}>
+              <Route path="branding" element={<BrandingSettings />} />
+              <Route path="ai" element={<AISettings />} />
+              <Route path="notifications" element={<NotificationSettings />} />
+              <Route path="costs" element={<CostSettings />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="localization" element={<LocalizationSettings />} />
+              <Route path="system-update" element={<SystemUpdateSettings />} />
+            </Route>
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </BrowserRouter>
+        </TranslationFix>
       </LanguageProvider>
     </ThemeProvider>
   );

@@ -10,6 +10,7 @@ from app.api.routes.flows import router as flows_router
 from app.api.routes.ai import router as ai_router
 from app.api.routes.contact_groups import router as contact_groups_router
 from app.api.routes.system import router as system_router
+from app.api.routes.labels import router as labels_router
 from app.core.config import app_settings
 from app.db.database import init_db
 
@@ -45,3 +46,4 @@ app.include_router(flows_router, prefix="/api/flows", tags=["flows"])
 app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 app.include_router(contact_groups_router, prefix="/api/contact-groups", tags=["contact-groups"])
 app.include_router(system_router, prefix="/api/system", tags=["system"])
+app.include_router(labels_router, prefix="/api/labels", tags=["labels"])

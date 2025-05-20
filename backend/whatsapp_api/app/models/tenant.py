@@ -15,6 +15,18 @@ class WhatsAppBusinessAccount(BaseModel):
     business_name: str
     verified: bool = False
     api_key: Optional[str] = None
+    business_account_id: Optional[str] = None
+    waba_id: Optional[str] = None
+    meta_access_token: Optional[str] = None
+    quality_rating: Optional[str] = None
+    messaging_limit: Optional[int] = None
+    about: Optional[str] = None
+    address: Optional[str] = None
+    description: Optional[str] = None
+    email: Optional[str] = None
+    vertical: Optional[str] = None
+    websites: List[str] = []
+    profile_picture_url: Optional[str] = None
 
 class UsageLimits(BaseModel):
     max_messages_per_day: int = 1000
@@ -73,6 +85,9 @@ class Tenant(Document):
     logo_url: Optional[HttpUrl] = None
     documents: List[TenantDocument] = []
     whatsapp_accounts: List[WhatsAppBusinessAccount] = []
+    webhook_uri: Optional[str] = Field(default=None, description="Auto-generated webhook URI")
+    webhook_token: Optional[str] = Field(default=None, description="Auto-generated webhook token")
+    webhook_secret: Optional[str] = Field(default=None, description="Auto-generated webhook secret")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     active: bool = True

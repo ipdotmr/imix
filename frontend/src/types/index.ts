@@ -63,6 +63,7 @@ export interface Message {
   content: any;
   whatsappMessageId?: string;
   status: MessageStatus;
+  labels: ConversationLabel[];  // Add labels to messages
   createdAt: string;
   updatedAt: string;
   isBusinessInitiated?: boolean;
@@ -91,9 +92,31 @@ export interface Contact {
   updatedAt: string;
 }
 
+export enum LabelColor {
+  RED = "red",
+  ORANGE = "orange",
+  YELLOW = "yellow",
+  GREEN = "green",
+  BLUE = "blue",
+  PURPLE = "purple",
+  PINK = "pink",
+  GRAY = "gray"
+}
+
 export interface Label {
+  id: string;
+  tenantId: string;
   name: string;
-  color: string;
+  color: LabelColor;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationLabel {
+  labelId: string;
+  addedAt: string;
+  addedBy: string;
 }
 
 export interface ChatFlow {
@@ -207,6 +230,7 @@ export interface Message {
   content: any;
   whatsappMessageId?: string;
   status: MessageStatus;
+  labels: ConversationLabel[];  // Add labels to messages
   createdAt: string;
   updatedAt: string;
   isBusinessInitiated?: boolean;

@@ -4,6 +4,8 @@ from typing import Optional, List, Dict, Any
 from beanie import Document
 from pydantic import BaseModel, Field
 
+from app.models.label import ConversationLabel
+
 class MessageType(str, Enum):
     TEXT = "text"
     IMAGE = "image"
@@ -44,6 +46,7 @@ class Message(Document):
     content: Dict[str, Any]
     whatsapp_message_id: Optional[str] = None
     status: MessageStatus = MessageStatus.SENT
+    labels: List[ConversationLabel] = []  # Add labels to messages
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_business_initiated: bool = False

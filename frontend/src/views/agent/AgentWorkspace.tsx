@@ -13,9 +13,16 @@ import {
   Mic, 
   MicOff,
   AlertCircle,
-  FileText
+  FileText,
+  Tag,
+  Plus
 } from "lucide-react";
-import { Message, Contact, Form } from '../../types';
+import { Message, Contact, Form, Label, LabelColor } from '../../types';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../components/ui/popover";
 import QuickReplies from '../../components/agent/QuickReplies';
 import { notifyNewMessage, playNotificationSound, NotificationSoundType } from '../../services/notification';
 
@@ -33,8 +40,51 @@ const AgentWorkspace: React.FC = () => {
   const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
   const [forms, setForms] = useState<Form[]>([]);
   const [showFormSelector, setShowFormSelector] = useState(false);
+  const [labels, setLabels] = useState<Label[]>([]);
+  const [conversationLabels, setConversationLabels] = useState<{[key: string]: Label[]}>({});
   
   useEffect(() => {
+    const mockLabels: Label[] = [
+      {
+        id: '1',
+        tenantId: 'tenant1',
+        name: 'Urgent',
+        color: LabelColor.RED,
+        description: 'Needs immediate attention',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        tenantId: 'tenant1',
+        name: 'Support',
+        color: LabelColor.BLUE,
+        description: 'Support related queries',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: '3',
+        tenantId: 'tenant1',
+        name: 'Sales',
+        color: LabelColor.GREEN,
+        description: 'Sales related queries',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: '4',
+        tenantId: 'tenant1',
+        name: 'Feedback',
+        color: LabelColor.PURPLE,
+        description: 'Customer feedback',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+    
+    setLabels(mockLabels);
+    
     const mockContacts: Contact[] = [
       { 
         id: '1', 
@@ -43,7 +93,7 @@ const AgentWorkspace: React.FC = () => {
         phoneNumber: '+1234567890', 
         name: 'John Doe', 
         profileName: 'John', 
-        labels: [{ name: 'Customer', color: '#4CAF50' }],
+        labels: [mockLabels[2]], // Sales label
         customFields: {},
         variantFieldValues: {
           'customerType': 'VIP',
@@ -61,7 +111,7 @@ const AgentWorkspace: React.FC = () => {
         phoneNumber: '+0987654321', 
         name: 'Jane Smith', 
         profileName: 'Jane', 
-        labels: [{ name: 'Lead', color: '#2196F3' }],
+        labels: [mockLabels[1]], // Support label
         customFields: {},
         variantFieldValues: {
           'leadSource': 'Website',
@@ -75,6 +125,11 @@ const AgentWorkspace: React.FC = () => {
     ];
     
     setContacts(mockContacts);
+    
+    setConversationLabels({
+      '1': [mockLabels[2]], // Sales label for John Doe
+      '2': [mockLabels[1]]  // Support label for Jane Smith
+    });
     
   }, []);
   
@@ -90,6 +145,7 @@ const AgentWorkspace: React.FC = () => {
           messageType: 'text', 
           content: { text: 'Hello, I need help with my order' }, 
           status: 'delivered',
+          labels: [],
           createdAt: new Date(Date.now() - 3600000).toISOString(),
           updatedAt: new Date(Date.now() - 3600000).toISOString()
         },
@@ -102,6 +158,7 @@ const AgentWorkspace: React.FC = () => {
           messageType: 'text', 
           content: { text: 'Hi there! I\'d be happy to help. Could you please provide your order number?' }, 
           status: 'delivered',
+          labels: [],
           createdAt: new Date(Date.now() - 3500000).toISOString(),
           updatedAt: new Date(Date.now() - 3500000).toISOString()
         },
@@ -119,6 +176,7 @@ const AgentWorkspace: React.FC = () => {
           messageType: 'text' as const,
           content: { text: 'My order number is #12345. I haven\'t received it yet.' },
           status: 'delivered' as const,
+          labels: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
@@ -238,6 +296,7 @@ const AgentWorkspace: React.FC = () => {
         audio: URL.createObjectURL(audioBlob)
       },
       status: 'sent' as const,
+      labels: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isBusinessInitiated: true,
@@ -264,6 +323,7 @@ const AgentWorkspace: React.FC = () => {
       messageType: 'form' as const,
       content: { form: form },
       status: 'sent' as const,
+      labels: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isBusinessInitiated: true,
@@ -287,6 +347,7 @@ const AgentWorkspace: React.FC = () => {
       messageType: 'text' as const,
       content: { text: messageText },
       status: 'sent' as const,
+      labels: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isBusinessInitiated: true,
@@ -301,6 +362,58 @@ const AgentWorkspace: React.FC = () => {
   
   const handleSelectQuickReply = (message: string) => {
     setMessageText(message);
+  };
+  
+  const getConversationLabels = (contactId: string) => {
+    return conversationLabels[contactId] || [];
+  };
+
+  const addLabelToConversation = async (contactId: string, labelId: string) => {
+    try {
+      const label = labels.find(l => l.id === labelId);
+      if (!label) return;
+      
+      setConversationLabels(prev => ({
+        ...prev,
+        [contactId]: [...(prev[contactId] || []), label]
+      }));
+    } catch (error) {
+      console.error('Error adding label to conversation:', error);
+    }
+  };
+
+  const removeLabelFromConversation = async (contactId: string, labelId: string) => {
+    try {
+      setConversationLabels(prev => ({
+        ...prev,
+        [contactId]: (prev[contactId] || []).filter(l => l.id !== labelId)
+      }));
+    } catch (error) {
+      console.error('Error removing label from conversation:', error);
+    }
+  };
+
+  const getLabelColorClass = (color: LabelColor) => {
+    switch (color) {
+      case LabelColor.RED:
+        return 'bg-red-100 text-red-800';
+      case LabelColor.ORANGE:
+        return 'bg-orange-100 text-orange-800';
+      case LabelColor.YELLOW:
+        return 'bg-yellow-100 text-yellow-800';
+      case LabelColor.GREEN:
+        return 'bg-green-100 text-green-800';
+      case LabelColor.BLUE:
+        return 'bg-blue-100 text-blue-800';
+      case LabelColor.PURPLE:
+        return 'bg-purple-100 text-purple-800';
+      case LabelColor.PINK:
+        return 'bg-pink-100 text-pink-800';
+      case LabelColor.GRAY:
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
   
   return (
@@ -360,30 +473,77 @@ const AgentWorkspace: React.FC = () => {
         {selectedContact ? (
           <>
             {/* Chat header */}
-            <div className="p-4 border-b flex items-center justify-between">
-              <div>
-                <div className="font-medium">{selectedContact.name}</div>
-                <div className="text-sm text-gray-500">{selectedContact.phoneNumber}</div>
-                
-                {/* Display variant fields */}
-                {selectedContact.variantFieldValues && Object.keys(selectedContact.variantFieldValues).length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {Object.entries(selectedContact.variantFieldValues).map(([key, value]) => (
-                      <span 
-                        key={key}
-                        className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800"
-                      >
-                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {value}
-                      </span>
-                    ))}
+            <div className="p-4 border-b flex flex-col">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{selectedContact.name}</div>
+                  <div className="text-sm text-gray-500">{selectedContact.phoneNumber}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="icon">
+                    <Phone size={20} />
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Labels */}
+              <div className="flex items-center space-x-2 mt-2">
+                {getConversationLabels(selectedContact.id).map(label => (
+                  <div 
+                    key={label.id} 
+                    className={`px-2 py-1 rounded-full text-xs flex items-center ${getLabelColorClass(label.color)}`}
+                  >
+                    <Tag size={12} className="mr-1" />
+                    {label.name}
+                    <button 
+                      className="ml-1 text-gray-500 hover:text-gray-700"
+                      onClick={() => removeLabelFromConversation(selectedContact.id, label.id)}
+                    >
+                      &times;
+                    </button>
                   </div>
-                )}
+                ))}
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-6 px-2">
+                      <Plus size={12} className="mr-1" />
+                      Add Label
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-2">
+                    <div className="space-y-1">
+                      {labels.map(label => (
+                        <button
+                          key={label.id}
+                          className={`w-full text-left px-2 py-1 rounded text-sm flex items-center ${getLabelColorClass(label.color)}`}
+                          onClick={() => {
+                            addLabelToConversation(selectedContact.id, label.id);
+                            document.body.click(); // Close popover
+                          }}
+                        >
+                          <Tag size={12} className="mr-2" />
+                          {label.name}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon">
-                  <Phone size={20} />
-                </Button>
-              </div>
+              
+              {/* Display variant fields */}
+              {selectedContact.variantFieldValues && Object.keys(selectedContact.variantFieldValues).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {Object.entries(selectedContact.variantFieldValues).map(([key, value]) => (
+                    <span 
+                      key={key}
+                      className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800"
+                    >
+                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {value}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             
             {/* Messages */}

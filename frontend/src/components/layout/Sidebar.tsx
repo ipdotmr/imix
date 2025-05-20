@@ -9,7 +9,8 @@ import {
   Layers,
   LogOut,
   FileText,
-  CheckSquare
+  CheckSquare,
+  Tag
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { logout } from '../../services/auth';
@@ -29,6 +30,7 @@ const Sidebar: React.FC = () => {
     { icon: FileText, label: 'Forms', path: '/forms' },
     { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
     { icon: Users, label: 'Phone Book', path: '/contacts/phonebook' },
+    { icon: Tag, label: 'Labels', path: '/labels' },
     { icon: BarChart2, label: 'Analytics', path: '/analytics' },
     { icon: Settings, label: 'Settings', path: '/settings/branding' },
   ];
