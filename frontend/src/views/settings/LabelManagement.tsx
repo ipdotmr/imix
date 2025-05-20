@@ -33,15 +33,15 @@ import {
   SelectValue
 } from "../../components/ui/select";
 import { Textarea } from "../../components/ui/textarea";
-import { Edit, Trash2, Plus, Tag } from 'lucide-react';
+import { Edit, Trash2, Plus } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
 import { Label, LabelColor } from '../../types';
 import api from '../../services/api';
-import { useToast } from "../../components/ui/use-toast";
+// import { useToast } from "../../components/ui/use-toast";
 
 const LabelManagement: React.FC = () => {
   const { t } = useLanguage();
-  const { toast } = useToast();
+  // const { toast } = useToast();
   const [labels, setLabels] = useState<Label[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -59,18 +59,14 @@ const LabelManagement: React.FC = () => {
         setLabels(response.data);
       } catch (error) {
         console.error('Error fetching labels:', error);
-        toast({
-          title: t('common.error'),
-          description: t('labels.fetchError'),
-          variant: 'destructive'
-        });
+        console.error('Error:', t('labels.fetchError'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchLabels();
-  }, [t, toast]);
+  }, [t]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -105,18 +101,10 @@ const LabelManagement: React.FC = () => {
     try {
       await api.delete(`/api/labels/${id}`);
       setLabels(labels.filter(label => label.id !== id));
-      toast({
-        title: t('common.success'),
-        description: t('labels.deleteSuccess'),
-        variant: 'success'
-      });
+      console.error('Success:', t('labels.deleteSuccess'));
     } catch (error) {
       console.error('Error deleting label:', error);
-      toast({
-        title: t('common.error'),
-        description: t('labels.deleteError'),
-        variant: 'destructive'
-      });
+      console.error('Error:', t('labels.deleteError'));
     }
   };
 
@@ -129,29 +117,17 @@ const LabelManagement: React.FC = () => {
         setLabels(labels.map(label => 
           label.id === editingLabel.id ? response.data : label
         ));
-        toast({
-          title: t('common.success'),
-          description: t('labels.updateSuccess'),
-          variant: 'success'
-        });
+        console.error('Success:', t('labels.updateSuccess'));
       } else {
         const response = await api.post('/api/labels', formData);
         setLabels([...labels, response.data]);
-        toast({
-          title: t('common.success'),
-          description: t('labels.createSuccess'),
-          variant: 'success'
-        });
+        console.error('Success:', t('labels.createSuccess'));
       }
       
       setDialogOpen(false);
     } catch (error) {
       console.error('Error saving label:', error);
-      toast({
-        title: t('common.error'),
-        description: t('labels.saveError'),
-        variant: 'destructive'
-      });
+      console.error('Error:', t('labels.saveError'));
     }
   };
 
