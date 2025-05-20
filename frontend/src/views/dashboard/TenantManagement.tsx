@@ -27,7 +27,7 @@ import {
 } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Plus, Edit, Trash2, Globe, Webhook, Lock, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, RefreshCw, Eye } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { useLanguage } from "../../providers/LanguageProvider";
 import { Tenant, WhatsAppBusinessAccount, Language } from "../../types";
@@ -63,7 +63,7 @@ const TenantManagement: React.FC = () => {
   const [whatsappAccounts, setWhatsappAccounts] = useState<WhatsAppBusinessAccount[]>([]);
   const [editingAccountIndex, setEditingAccountIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('general');
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   
   useEffect(() => {
     const mockTenants = [
@@ -86,7 +86,9 @@ const TenantManagement: React.FC = () => {
           maxMessagesPerDay: 1000,
           maxMediaPerDay: 100,
           maxTemplates: 10,
-          maxAgents: 5
+          maxAgents: 5,
+          maxContacts: 1000,
+          maxContactGroups: 50
         }
       },
       {
@@ -129,7 +131,21 @@ const TenantManagement: React.FC = () => {
       name: '',
       businessId: '',
       businessName: '',
-      phoneNumber: ''
+      phoneNumber: '',
+      organization: '',
+      address: '',
+      phone: '',
+      mobile: '',
+      email: '',
+      privateNotes: '',
+      webhookUri: '',
+      webhookToken: '',
+      defaultLanguage: 'en' as Language,
+      phoneNumberId: '',
+      businessAccountId: '',
+      metaAccessToken: '',
+      whatsappPhoneId: '',
+      appId: ''
     });
     setDialogOpen(true);
   };
@@ -217,7 +233,9 @@ const TenantManagement: React.FC = () => {
           maxMessagesPerDay: 1000,
           maxMediaPerDay: 100,
           maxTemplates: 10,
-          maxAgents: 5
+          maxAgents: 5,
+          maxContacts: 1000,
+          maxContactGroups: 50
         }
       };
       setTenants([...tenants, newTenant]);
@@ -663,10 +681,10 @@ const TenantManagement: React.FC = () => {
                     <Input
                       id="webhookUri"
                       name="webhookUri"
-                      value={formData.webhookUri}
-                      onChange={handleInputChange}
-                      className="flex-1"
-                      placeholder="https://imix.ip.mr/api/webhook/your-unique-id"
+                      value={formData.webhookUri || 'Auto-generated after creation'}
+                      readOnly
+                      className="flex-1 bg-gray-50"
+                      placeholder="https://apimix.ip.mr/api/webhook/your-unique-id"
                     />
                   </div>
                   <p className="text-sm text-gray-500">
@@ -680,19 +698,30 @@ const TenantManagement: React.FC = () => {
                     <Input
                       id="webhookToken"
                       name="webhookToken"
-                      value={formData.webhookToken}
-                      onChange={handleInputChange}
+                      value={formData.webhookToken || 'Auto-generated after creation'}
+                      readOnly
                       type="password"
-                      className="flex-1"
+                      className="flex-1 bg-gray-50"
                     />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="ml-2"
-                      onClick={() => setFormData({ ...formData, webhookToken: Math.random().toString(36).substring(2, 15) })}
-                    >
-                      {t('tenants.generateToken')}
-                    </Button>
+                    {editingTenant && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="ml-2"
+                        onClick={() => {
+                          const newToken = Array(32).fill(0).map(() => 
+                            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+                              Math.floor(Math.random() * 62)
+                            )
+                          ).join('');
+                          
+                          setFormData({ ...formData, webhookToken: newToken });
+                          alert(t('tenants.tokenRegenerated') || 'Webhook token has been regenerated');
+                        }}
+                      >
+                        {t('tenants.regenerateToken')}
+                      </Button>
+                    )}
                   </div>
                   <p className="text-sm text-gray-500">
                     {t('tenants.webhookTokenDescription')}
